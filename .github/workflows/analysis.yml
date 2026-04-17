@@ -71,14 +71,9 @@ jobs:
 
       - name: Render Quarto report
         run: |
+          quarto render report/report.qmd
           mkdir -p docs
-          quarto render report/report.qmd -o index.html
-          if [ -f report/index.html ]; then
-            cp report/index.html docs/index.html
-          fi
-          if [ -d report/report_files ]; then
-            cp -r report/report_files docs/
-          fi
+          cp report/report.html docs/index.html
 
       - name: Upload outputs as artefact
         if: always()
