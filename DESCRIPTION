@@ -1,0 +1,31 @@
+Package: BankEfficiencyNDEA
+Type: Research
+Title: Technical Efficiency of Albanian Banks via Dynamic Network DEA (2021-2023)
+Version: 1.0.0
+Authors@R: person("Aristea", "Gjokthomi", role = c("aut", "cre"))
+Description: Dynamic Network Data Envelopment Analysis of nine Albanian banks
+    covering 2021-2023. Implements a two-stage production process with
+    carry-over effects, bootstrap confidence intervals (Simar & Wilson),
+    Malmquist productivity index, and sensitivity analysis on carry-over
+    parameters. Includes an interactive Shiny dashboard and a Quarto report.
+License: MIT
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports:
+    readxl,
+    Benchmarking,
+    ggplot2,
+    dplyr,
+    tidyr,
+    gridExtra,
+    here,
+    plotly,
+    DT,
+    shiny,
+    shinydashboard,
+    bslib
+Suggests:
+    quarto,
+    knitr,
+    rmarkdown,
+    testthat

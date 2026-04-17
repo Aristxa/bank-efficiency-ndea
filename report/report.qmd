@@ -1,0 +1,148 @@
+---
+title: "Technical Efficiency of Albanian Banks (2021–2023)"
+subtitle: "A Dynamic Network DEA Approach"
+author: Aristea Gjokthomi
+date: today
+lang: en
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    theme: cosmo
+    code-fold: true
+    code-tools: true
+    fig-width: 9
+    fig-height: 6
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+  echo: false
+---
+
+```{r setup}
+library(here)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(DT)
+
+r_files <- sort(list.files(here("R"), pattern = "\\.R$", full.names = TRUE))
+invisible(lapply(r_files, source))
+
+data        <- load_bank_data()
+results     <- dynamic_network_dea(data, verbose = FALSE)
+summary_tbl <- summarize_bank_performance(results)
+mpi         <- malmquist_index(data)
+sens_inv    <- sensitivity_carry_rates(data, param = "investime")
+```
+
+## Abstract
+
+We assess the technical efficiency of nine Albanian banks — BKT, Raiffeisen,
+Credins, Intesa Sanpaolo, OTP, Tirana Bank, Union Bank, Fibank, and ABI —
+over 2021–2023 using a **Dynamic Network DEA** model. The production
+process is split into two stages: (1) converting labour, branches, and
+deposits into intermediate products (investments, cards, loans), and
+(2) converting those products into final outcomes (net income, ROE).
+Carry-over effects propagate part of each year's intermediate products
+into the next year's input base. We report **bootstrap confidence
+intervals** (Simar & Wilson, 1998), the **Malmquist productivity index**
+(Färe et al., 1994), and a **sensitivity analysis** across carry-over
+parameter values.
+
+## 1. Data
+
+```{r}
+DT::datatable(
+  data,
+  options = list(pageLength = 9, scrollX = TRUE),
+  rownames = FALSE,
+  caption = "Nine Albanian banks — annual observations, 2021–2023."
+)
+```
+
+## 2. Network Efficiency by Year
+
+```{r network-trend-plot}
+ggplotly(plot_network_trends(results))
+```
+
+### Bank-level summary across all years
+
+```{r summary-table}
+DT::datatable(
+  summary_tbl,
+  options = list(pageLength = 9),
+  rownames = FALSE
+)
+```
+
+## 3. Two-Stage Decomposition
+
+Stage 1 measures how well a bank turns resources into products; Stage 2
+measures how well those products translate into revenue. Points above
+the 45° line indicate that Stage 2 dominates; below, Stage 1 dominates.
+
+```{r stage-scatter}
+ggplotly(plot_stage_scatter(results, year = max(results$Year)))
+```
+
+## 4. Bootstrap Confidence Intervals
+
+```{r bootstrap-ci, cache=TRUE}
+boot_stage1 <- bootstrap_by_year(data, stage = "stage1", n_boot = 500)
+plot_bootstrap_ci(boot_stage1)
+```
+
+The red point is the bias-corrected efficiency score; the blue × is the
+original DEA point estimate. Given the small sample (n = 9 per year),
+the intervals are wide, which is expected.
+
+## 5. Malmquist Productivity Index
+
+```{r mpi}
+plot_malmquist(mpi)
+```
+
+```{r mpi-table}
+DT::datatable(mpi, options = list(pageLength = 20), rownames = FALSE)
+```
+
+## 6. Sensitivity to Carry-Over Parameters
+
+The baseline assumes 30% of investments, 50% of the card base, and 20%
+of the loan portfolio carry over. Rankings can be fragile to these
+choices — the figure below shows how average Network efficiency shifts
+as we sweep the investment carry-over rate.
+
+```{r sensitivity}
+ggplotly(plot_sensitivity(sens_inv))
+```
+
+## 7. Discussion
+
+BKT, ABI, Fibank, OTP, and Raiffeisen consistently sit at or near the
+efficient frontier across 2021–2023. Credins, Intesa Sanpaolo, Tirana
+Bank, and Union Bank show uneven performance between the two stages —
+a useful diagnostic: where the bottleneck lives tells management what
+to fix. The bootstrap intervals argue for caution in reading small
+efficiency gaps as real.
+
+## References
+
+- Färe, R., Grosskopf, S. (2000). *Network DEA*. Socio-Economic Planning Sciences.
+- Färe, R., Grosskopf, S., Norris, M., Zhang, Z. (1994). Productivity growth,
+  technical progress, and efficiency change in industrialized countries.
+  *American Economic Review*.
+- Kao, C., Hwang, S.-N. (2008). Efficiency decomposition in two-stage DEA.
+  *European Journal of Operational Research*.
+- Sealey, C. W., Lindley, J. T. (1977). Inputs, outputs, and a theory of
+  production and cost at depository financial institutions.
+  *Journal of Finance*.
+- Simar, L., Wilson, P. W. (1998). Sensitivity analysis of efficiency
+  scores: how to bootstrap in nonparametric frontier models.
+  *Management Science*.
+- Tone, K., Tsutsui, M. (2014). Dynamic DEA with network structure.
+  *Omega*.

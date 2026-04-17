@@ -1,0 +1,36 @@
+# R
+.Rhistory
+.RData
+.Rproj.user/
+.Ruserdata
+*.Rproj
+
+# renv
+renv/library/
+renv/local/
+renv/cellar/
+renv/staging/
+.Renviron
+
+# Output (kept tracked only as empty dir)
+output/*
+!output/.gitkeep
+
+# Rendered reports
+report/*.html
+report/*_files/
+report/.quarto/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Private: original thesis materials — never publish, to prevent plagiarism
+thesis/
+*.docx
+
+# IDE
+.vscode/
+.idea/
+.claude/
