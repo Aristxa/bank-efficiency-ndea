@@ -32,14 +32,20 @@ dynamic_network_dea <- function(data,
     intermediates <- as.matrix(year_data[, variables$intermediates])
     final_outputs <- as.matrix(year_data[, variables$final_outputs])
 
+    inputs_stage1_expanded <- inputs_stage1
     if (i > 1 && !is.null(prev_intermediate)) {
-      carry_investments <- prev_intermediate[, 1] * carry_rates$investime
-      carry_loans       <- prev_intermediate[, 3] * carry_rates$kredi
-      inputs_stage1_expanded <- cbind(inputs_stage1,
-                                      carry_investments = carry_investments,
-                                      carry_loans = carry_loans)
-    } else {
-      inputs_stage1_expanded <- inputs_stage1
+      if (carry_rates$investime > 0) {
+        inputs_stage1_expanded <- cbind(
+          inputs_stage1_expanded,
+          carry_investments = prev_intermediate[, 1] * carry_rates$investime
+        )
+      }
+      if (carry_rates$kredi > 0) {
+        inputs_stage1_expanded <- cbind(
+          inputs_stage1_expanded,
+          carry_loans = prev_intermediate[, 3] * carry_rates$kredi
+        )
+      }
     }
 
     stage1 <- run_dea(inputs_stage1_expanded, intermediates, rts, orientation)

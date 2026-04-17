@@ -13,21 +13,35 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Set UTF-8 locale
+        run: |
+          sudo locale-gen en_US.UTF-8
+          sudo update-locale LANG=en_US.UTF-8
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libglpk-dev libglpk40 \
+            libcurl4-openssl-dev libxml2-dev libssl-dev \
+            libfontconfig1-dev libfreetype6-dev \
+            libharfbuzz-dev libfribidi-dev \
+            libpng-dev libtiff5-dev libjpeg-dev \
+            pandoc
 
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: '4.4.0'
           use-public-rspm: true
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libglpk-dev libcurl4-openssl-dev libxml2-dev libssl-dev
 
       - name: Install R dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
@@ -59,20 +73,27 @@ jobs:
         run: |
           mkdir -p docs
           quarto render report/report.qmd -o index.html
-          cp report/index.html docs/index.html
-          if [ -d report/report_files ]; then cp -r report/report_files docs/; fi
+          if [ -f report/index.html ]; then
+            cp report/index.html docs/index.html
+          fi
+          if [ -d report/report_files ]; then
+            cp -r report/report_files docs/
+          fi
 
       - name: Upload outputs as artefact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: analysis-output
           path: |
             output/
             docs/
+          if-no-files-found: warn
 
       - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && success()
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
+          publish_branch: gh-pages
