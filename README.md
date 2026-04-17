@@ -1,5 +1,7 @@
 # Technical Efficiency of Albanian Banks — Dynamic Network DEA (2021–2023)
 
+📊 **Live report:** <https://aristxa.github.io/bank-efficiency-ndea/>
+
 A Dynamic Network Data Envelopment Analysis of nine Albanian commercial
 banks — Banka Kombëtare Tregtare, Raiffeisen, Credins, Intesa Sanpaolo,
 OTP, Tirana Bank, Union Bank, Fibank, and ABI — over the period 2021–2023.
