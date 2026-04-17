@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -53,7 +56,11 @@ jobs:
         run: Rscript scripts/run_analysis.R
 
       - name: Render Quarto report
-        run: quarto render report/report.qmd --output-dir ../docs
+        run: |
+          mkdir -p docs
+          quarto render report/report.qmd -o index.html
+          cp report/index.html docs/index.html
+          if [ -d report/report_files ]; then cp -r report/report_files docs/; fi
 
       - name: Upload outputs as artefact
         uses: actions/upload-artifact@v4
